@@ -133,9 +133,26 @@ NashEnumPureStrategySolver::NashEnumPureStrategySolver(MixedStrategyRenderer<Rat
   }
 }
 
+int profile_sorter( const PureStrategyProfile& psp1, const PureStrategyProfile& psp2 )
+{
+    if ( psp1->GetIndex() < psp2->GetIndex() )
+    {
+        return -1;
+    }
+    else if ( psp1->GetIndex() == psp2->GetIndex() )
+    {
+        return 0;
+    }
+    else
+    {
+        return 1;
+    }
+}
+
 List<MixedStrategyProfile<Rational> >
 NashEnumPureStrategySolver::Solve(const Game &p_game) const
 {
+  clock_t startTime = clock();
   bool flag = false;
   List<MixedStrategyProfile<Rational> > solutions;
   std::vector<PureStrategyProfile> eq_candidates;
@@ -145,37 +162,21 @@ NashEnumPureStrategySolver::Solve(const Game &p_game) const
       List<GameStrategy> strats = (*citer)->GetBestResponse(p_game->GetPlayer(pl));
       for(int i = 1; i <= strats.Length(); i++) {
         PureStrategyProfile temp = (*citer);
-        cout << strats[i]->GetLabel() << "\n";
-        cout << "Before: ";
-        cout << temp->GetStrategy(p_game->GetPlayer(pl))->GetLabel() << "\n";
         temp->SetStrategy(strats[i]);
-        cout << "After: ";
-        cout << temp->GetStrategy(p_game->GetPlayer(pl))->GetLabel() << "\n";
         best_responses.push_back(temp);
       }
     }
     if (!flag) {
       eq_candidates = best_responses;
+      // std::sort(eq_candidates.begin(), eq_candidates.end(), profile_sorter);
       flag = true;
     }
     else {
       std::vector<PureStrategyProfile> intersection;
-      cout << "eq_candidates\n";
-      std::sort(eq_candidates.begin(), eq_candidates.end());
-      cout << "best_responses\n";
-      std::sort(best_responses.begin(), best_responses.end());
-      for (std::vector<PureStrategyProfile>::iterator it = best_responses.begin(); it != best_responses.end(); ++it) {
-        MixedStrategyProfile<Rational> profile = (*it)->ToMixedStrategyProfile();
-        m_onEquilibrium->Render(profile);
-      }
+      // std::sort(best_responses.begin(), best_responses.end(), profile_sorter);
       std::set_intersection(eq_candidates.begin(), eq_candidates.end(),
                             best_responses.begin(), best_responses.end(),
-                            std::back_inserter(intersection));
-      cout << "set intersection\n";
-      for (std::vector<PureStrategyProfile>::iterator it = intersection.begin(); it != intersection.end(); ++it) {
-        MixedStrategyProfile<Rational> profile = (*it)->ToMixedStrategyProfile();
-        m_onEquilibrium->Render(profile);
-      }
+                            std::back_inserter(intersection), profile_sorter);
       eq_candidates = intersection;
     }
     if (eq_candidates.empty()) {
@@ -187,6 +188,7 @@ NashEnumPureStrategySolver::Solve(const Game &p_game) const
     m_onEquilibrium->Render(profile);
     solutions.Append(profile);
   }
+  cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << endl;
   return solutions;
 }
 

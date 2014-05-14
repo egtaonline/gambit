@@ -26,7 +26,11 @@
 #include <iostream>
 #include <fstream>
 #include <cerrno>
+<<<<<<< HEAD
 #include <algorithm>
+=======
+#include <unordered_map>
+>>>>>>> master_iterator
 #include "libgambit/libgambit.h"
 #include "libgambit/subgame.h"
 
@@ -155,7 +159,7 @@ NashEnumPureStrategySolver::Solve(const Game &p_game) const
   clock_t startTime = clock();
   bool flag = false;
   List<MixedStrategyProfile<Rational> > solutions;
-  std::vector<PureStrategyProfile> eq_candidates;
+  std::unordered_map<long, int> eq_candidates;
   for (int pl = 1; pl <= p_game->NumPlayers(); pl++) {
     std::vector<PureStrategyProfile> best_responses;
     for (StrategyIterator citer(p_game, pl, 1); !citer.AtEnd(); citer++) {
@@ -163,30 +167,17 @@ NashEnumPureStrategySolver::Solve(const Game &p_game) const
       for(int i = 1; i <= strats.Length(); i++) {
         PureStrategyProfile temp = (*citer);
         temp->SetStrategy(strats[i]);
-        best_responses.push_back(temp);
+        eq_candidates[temp->GetIndex()] += 1;
       }
     }
-    if (!flag) {
-      eq_candidates = best_responses;
-      // std::sort(eq_candidates.begin(), eq_candidates.end(), profile_sorter);
-      flag = true;
-    }
-    else {
-      std::vector<PureStrategyProfile> intersection;
-      std::sort(best_responses.begin(), best_responses.end(), profile_sorter);
-      std::set_intersection(eq_candidates.begin(), eq_candidates.end(),
-                            best_responses.begin(), best_responses.end(),
-                            std::back_inserter(intersection), profile_sorter);
-      eq_candidates = intersection;
-    }
-    if (eq_candidates.empty()) {
-      break;
-    }
   }
-  for (std::vector<PureStrategyProfile>::iterator it = eq_candidates.begin(); it != eq_candidates.end(); ++it) {
-    MixedStrategyProfile<Rational> profile = (*it)->ToMixedStrategyProfile();
-    m_onEquilibrium->Render(profile);
-    solutions.Append(profile);
+  int count = p_game->NumPlayers();
+  for (StrategyIterator citer(p_game); !citer.AtEnd(); citer++) {
+    if (eq_candidates[(*citer)->GetIndex()] == count) {
+      MixedStrategyProfile<Rational> profile = (*citer)->ToMixedStrategyProfile();
+      m_onEquilibrium->Render(profile);
+      solutions.Append(profile);
+    }
   }
   cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << endl;
   return solutions;

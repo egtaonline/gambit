@@ -239,6 +239,7 @@ PureStrategyProfileRep::GetBestResponse(const GamePlayer &p_player) const
   GameStrategyArray::const_iterator strategy = p_player->Strategies().begin();
   Rational max_payoff = GetStrategyValue(*strategy);
   List<GameStrategy> br;
+  br.push_back(*strategy);
   for (++strategy; strategy != p_player->Strategies().end(); ++strategy)  {
     Rational this_payoff = GetStrategyValue(*strategy);
     if (this_payoff > max_payoff) {

@@ -26,11 +26,7 @@
 #include <iostream>
 #include <fstream>
 #include <cerrno>
-<<<<<<< HEAD
-#include <algorithm>
-=======
 #include <unordered_map>
->>>>>>> master_iterator
 #include "libgambit/libgambit.h"
 #include "libgambit/subgame.h"
 

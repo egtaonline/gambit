@@ -62,7 +62,7 @@ void GameStrategyRep::DeleteStrategy(void)
 
 GamePlayerRep::GamePlayerRep(GameRep *p_game, int p_id, int p_strats)
   : m_game(p_game), m_number(p_id), m_strategies(p_strats)
-{ 
+{
   for (int j = 1; j <= p_strats; j++) {
     m_strategies[j] = new GameStrategyRep(this);
     m_strategies[j]->m_number = j;
@@ -70,7 +70,7 @@ GamePlayerRep::GamePlayerRep(GameRep *p_game, int p_id, int p_strats)
 }
 
 GamePlayerRep::~GamePlayerRep()
-{ 
+{
   for (int j = 1; j <= m_infosets.Length(); m_infosets[j++]->Invalidate());
   for (int j = 1; j <= m_strategies.Length(); m_strategies[j++]->Invalidate());
 }
@@ -91,14 +91,14 @@ GameStrategy GamePlayerRep::NewStrategy(void)
 void GamePlayerRep::MakeStrategy(void)
 {
   Array<int> c(NumInfosets());
-  
+
   for (int i = 1; i <= NumInfosets(); i++)  {
     if (m_infosets[i]->flag == 1)
       c[i] = m_infosets[i]->whichbranch;
     else
       c[i] = 0;
   }
-  
+
   GameStrategyRep *strategy = new GameStrategyRep(this);
   m_strategies.Append(strategy);
   strategy->m_number = m_strategies.Length();
@@ -109,10 +109,10 @@ void GamePlayerRep::MakeStrategy(void)
   if (strategy->m_behav.Length() > 0) {
     for (int iset = 1; iset <= strategy->m_behav.Length(); iset++) {
       if (strategy->m_behav[iset] > 0) {
-	strategy->m_label += lexical_cast<std::string>(strategy->m_behav[iset]);
+  strategy->m_label += lexical_cast<std::string>(strategy->m_behav[iset]);
       }
       else {
-	strategy->m_label += "*";
+  strategy->m_label += "*";
       }
     }
   }
@@ -131,38 +131,38 @@ void GamePlayerRep::MakeReducedStrats(GameTreeNodeRep *n, GameTreeNodeRep *nn)
   if (n->NumChildren() > 0)  {
     if (n->infoset->m_player == this)  {
       if (n->infoset->flag == 0)  {
-	// we haven't visited this infoset before
-	n->infoset->flag = 1;
-	for (i = 1; i <= n->NumChildren(); i++)   {
-	  GameTreeNodeRep *m = n->children[i];
-	  n->whichbranch = m;
-	  n->infoset->whichbranch = i;
-	  MakeReducedStrats(m, nn);
-	}
-	n->infoset->flag = 0;
+  // we haven't visited this infoset before
+  n->infoset->flag = 1;
+  for (i = 1; i <= n->NumChildren(); i++)   {
+    GameTreeNodeRep *m = n->children[i];
+    n->whichbranch = m;
+    n->infoset->whichbranch = i;
+    MakeReducedStrats(m, nn);
+  }
+  n->infoset->flag = 0;
       }
       else  {
-	// we have visited this infoset, take same action
-	MakeReducedStrats(n->children[n->infoset->whichbranch], nn);
+  // we have visited this infoset, take same action
+  MakeReducedStrats(n->children[n->infoset->whichbranch], nn);
       }
     }
     else  {
       n->ptr = NULL;
       if (nn != NULL)
-	n->ptr = nn->m_parent;
+  n->ptr = nn->m_parent;
       n->whichbranch = n->children[1];
       if (n->infoset)
-	n->infoset->whichbranch = 0;
+  n->infoset->whichbranch = 0;
       MakeReducedStrats(n->children[1], n->children[1]);
     }
   }
   else if (nn)  {
     for (; ; nn = nn->m_parent->ptr->whichbranch)  {
       if (!nn->GetNextSibling()) {
-	m = 0;
+  m = 0;
       }
       else {
-	m = dynamic_cast<GameTreeNodeRep *>(nn->GetNextSibling().operator->());
+  m = dynamic_cast<GameTreeNodeRep *>(nn->GetNextSibling().operator->());
       }
       if (m || nn->m_parent->ptr == NULL)   break;
     }
@@ -194,8 +194,8 @@ bool PureStrategyProfileRep::IsNash(void) const
     GamePlayer player = m_nfg->GetPlayer(pl);
     Rational current = GetPayoff(player);
     for (GameStrategyArray::const_iterator strategy = player->Strategies().begin();
-	 strategy != player->Strategies().end();
-	 ++strategy)  {
+   strategy != player->Strategies().end();
+   ++strategy)  {
       if (GetStrategyValue(*strategy) > current) {
         return false;
       }
@@ -210,8 +210,8 @@ bool PureStrategyProfileRep::IsStrictNash(void) const
     GamePlayer player = m_nfg->GetPlayer(pl);
     Rational current = GetPayoff(player);
     for (GameStrategyArray::const_iterator strategy = player->Strategies().begin();
-	 strategy != player->Strategies().end();
-	 ++strategy) {
+   strategy != player->Strategies().end();
+   ++strategy) {
       if (GetStrategyValue(*strategy) >= current) {
         return false;
       }
@@ -233,12 +233,13 @@ bool PureStrategyProfileRep::IsBestResponse(const GamePlayer &p_player) const
   return true;
 }
 
-List<GameStrategy> 
+List<GameStrategy>
 PureStrategyProfileRep::GetBestResponse(const GamePlayer &p_player) const
 {
   GameStrategyArray::const_iterator strategy = p_player->Strategies().begin();
   Rational max_payoff = GetStrategyValue(*strategy);
   List<GameStrategy> br;
+  br.push_back(*strategy);
   for (++strategy; strategy != p_player->Strategies().end(); ++strategy)  {
     Rational this_payoff = GetStrategyValue(*strategy);
     if (this_payoff > max_payoff) {
@@ -298,9 +299,9 @@ void PureBehavProfile::SetAction(const GameAction &action)
     [action->GetInfoset()->GetNumber()] = action;
 }
 
-template <class T> 
+template <class T>
 T PureBehavProfile::GetPayoff(const GameNode &p_node,
-				 int pl) const
+         int pl) const
 {
   T payoff(0);
 
@@ -313,16 +314,16 @@ T PureBehavProfile::GetPayoff(const GameNode &p_node,
   if (!node->IsTerminal()) {
     if (node->GetInfoset()->IsChanceInfoset()) {
       for (int i = 1; i <= node->NumChildren(); i++) {
-	GameTreeInfosetRep *infoset = node->infoset;
-	payoff += (infoset->GetActionProb(i, (T) 0) *
-		   GetPayoff<T>(node->children[i], pl));
+  GameTreeInfosetRep *infoset = node->infoset;
+  payoff += (infoset->GetActionProb(i, (T) 0) *
+       GetPayoff<T>(node->children[i], pl));
       }
     }
     else {
       int player = node->GetPlayer()->GetNumber();
       int iset = node->GetInfoset()->GetNumber();
-      payoff += GetPayoff<T>(node->children[m_profile[player][iset]->GetNumber()], 
-				pl);
+      payoff += GetPayoff<T>(node->children[m_profile[player][iset]->GetNumber()],
+        pl);
     }
   }
 
@@ -353,10 +354,10 @@ bool PureBehavProfile::IsAgentNash(void) const
     for (int iset = 1; iset <= player->NumInfosets(); iset++) {
       GameInfoset infoset = player->GetInfoset(iset);
       for (int act = 1; act <= infoset->NumActions(); act++) {
-	GameAction action = infoset->GetAction(act);
-	if (GetPayoff<Rational>(action) > current)  {
-	  return false;
-	}
+  GameAction action = infoset->GetAction(act);
+  if (GetPayoff<Rational>(action) > current)  {
+    return false;
+  }
       }
     }
   }
@@ -389,7 +390,7 @@ PureBehavProfile::ToMixedBehavProfile(void) const
 GameExplicitRep::~GameExplicitRep()
 {
   for (int pl = 1; pl <= m_players.Length(); m_players[pl++]->Invalidate());
-  for (int outc = 1; outc <= m_outcomes.Length(); 
+  for (int outc = 1; outc <= m_outcomes.Length();
        m_outcomes[outc++]->Invalidate());
 }
 
@@ -400,7 +401,7 @@ GameExplicitRep::~GameExplicitRep()
 Rational GameExplicitRep::GetMinPayoff(int player) const
 {
   int index, p, p1, p2;
-  
+
   if (m_outcomes.Length() == 0)  return Rational(0);
 
   if (player) {
@@ -410,12 +411,12 @@ Rational GameExplicitRep::GetMinPayoff(int player) const
     p1 = 1;
     p2 = NumPlayers();
   }
-  
+
   Rational minpay = m_outcomes[1]->GetPayoff<Rational>(p1);
   for (index = 1; index <= m_outcomes.Length(); index++)  {
     for (p = p1; p <= p2; p++) {
       if (m_outcomes[index]->GetPayoff<Rational>(p) < minpay) {
-	minpay = m_outcomes[index]->GetPayoff<Rational>(p);
+  minpay = m_outcomes[index]->GetPayoff<Rational>(p);
       }
     }
   }
@@ -440,7 +441,7 @@ Rational GameExplicitRep::GetMaxPayoff(int player) const
   for (index = 1; index <= m_outcomes.Length(); index++)  {
     for (p = p1; p <= p2; p++)
       if (m_outcomes[index]->GetPayoff<Rational>(p) > maxpay)
-	maxpay = m_outcomes[index]->GetPayoff<Rational>(p);
+  maxpay = m_outcomes[index]->GetPayoff<Rational>(p);
   }
   return maxpay;
 }
@@ -465,7 +466,7 @@ GameStrategy GameExplicitRep::GetStrategy(int p_index) const
   for (int pl = 1, i = 1; pl <= m_players.Length(); pl++) {
     for (int st = 1; st <= m_players[pl]->m_strategies.Length(); st++, i++) {
       if (p_index == i) {
-	return m_players[pl]->m_strategies[st];
+  return m_players[pl]->m_strategies[st];
       }
     }
   }
@@ -507,14 +508,14 @@ GameOutcome GameExplicitRep::NewOutcome(void)
 //------------------------------------------------------------------------
 
 void GameExplicitRep::Write(std::ostream &p_stream,
-			    const std::string &p_format /*="native"*/) const
+          const std::string &p_format /*="native"*/) const
 {
   if (p_format == "efg" ||
       (p_format == "native" && IsTree())) {
     WriteEfgFile(p_stream);
   }
   else if (p_format == "nfg" ||
-	   (p_format == "native" && !IsTree())) {
+     (p_format == "native" && !IsTree())) {
     WriteNfgFile(p_stream);
   }
   else {

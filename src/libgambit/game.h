@@ -123,61 +123,23 @@ public:
   bool operator!(void) const { return !rep; }
 };
 
-/// A constant forward iterator on an array of GameObjects
-template <class R, class T> class GameObjectIterator {
-private:
-  const Array<R *> &m_array;
-  int m_index;
-
-public:
-  /// @name Lifecycle
-  //@{
-  /// Constructor
-  GameObjectIterator(const Array<R *> &p_array)
-    : m_array(p_array), m_index(m_array.First()) { }
-  //@}
-
-  /// @name Iteration and data access
-  //@{
-  /// Advance to the next element (prefix version)
-  void operator++(void) { m_index++; }
-  /// Advance to the next element (postfix version)
-  void operator++(int) { m_index++; }
-  /// Has iterator gone past the end?
-  bool AtEnd(void) const { return m_index > m_array.Last(); }
-  /// Get the current index into the array
-  int GetIndex(void) const { return m_index; }
-
-  /// Get the current element
-    ///T operator*(void) const { return m_array[m_index]; }
-  /// Get the current element
-  T operator->(void) const { return m_array[m_index]; }
-  /// Get the current element
-  operator T(void) const { return m_array[m_index]; }
-  //@}
-};
-
-
 //
 // Forward declarations of classes defined in this file.
 //
 
 class GameActionRep;
 typedef GameObjectPtr<GameActionRep> GameAction;
-typedef GameObjectIterator<GameActionRep, GameAction> GameActionIterator;
 
 class GameInfosetRep;
 typedef GameObjectPtr<GameInfosetRep> GameInfoset;
-typedef GameObjectIterator<GameInfosetRep, GameInfoset> GameInfosetIterator;
 class GameTreeInfosetRep;
 
 class GameStrategyRep;
 typedef GameObjectPtr<GameStrategyRep> GameStrategy;
-typedef GameObjectIterator<GameStrategyRep, GameStrategy> GameStrategyIterator;
 
 class GamePlayerRep;
 typedef GameObjectPtr<GamePlayerRep> GamePlayer;
-typedef GameObjectIterator<GamePlayerRep, GamePlayer> GamePlayerIterator;
+typedef Array<GamePlayerRep *> GamePlayers;
 
 class GameNodeRep;
 typedef GameObjectPtr<GameNodeRep> GameNode;
@@ -394,6 +356,8 @@ public:
   //@}
 };
 
+typedef Array<GameStrategyRep *> GameStrategyArray;
+
 /// A player in a game
 class GamePlayerRep : public GameObject {
   friend class GameExplicitRep;
@@ -419,7 +383,7 @@ private:
   int m_number;
   std::string m_label;
   Array<GameTreeInfosetRep *> m_infosets;
-  Array<GameStrategyRep *> m_strategies;
+  GameStrategyArray m_strategies;
 
   GamePlayerRep(GameRep *p_game, int p_id) : m_game(p_game), m_number(p_id)
     { }
@@ -448,8 +412,8 @@ public:
   int NumStrategies(void) const;
   /// Returns the st'th strategy for the player
   GameStrategy GetStrategy(int st) const;
-  /// Returns a forward iterator over the strategies
-  GameStrategyIterator Strategies(void) const;
+  /// Returns the array of strategies available to the player
+  const GameStrategyArray &Strategies(void) const;
   /// Creates a new strategy for the player
   GameStrategy NewStrategy(void);
   //@}
@@ -743,8 +707,8 @@ public:
   virtual int NumPlayers(void) const = 0;
   /// Returns the pl'th player in the game
   virtual GamePlayer GetPlayer(int pl) const = 0;
-  /// Returns an iterator over the players
-  virtual GamePlayerIterator Players(void) const = 0;
+  /// Returns the set of players in the game
+  virtual const GamePlayers &Players(void) const = 0;
   /// Returns the chance (nature) player
   virtual GamePlayer GetChance(void) const = 0;
   /// Creates a new player in the game, with no moves
@@ -805,8 +769,8 @@ inline int GamePlayerRep::NumStrategies(void) const
 { m_game->BuildComputedValues(); return m_strategies.Length(); }
 inline GameStrategy GamePlayerRep::GetStrategy(int st) const
 { m_game->BuildComputedValues(); return m_strategies[st]; }
-inline GameStrategyIterator GamePlayerRep::Strategies(void) const
-{ m_game->BuildComputedValues(); return GameStrategyIterator(m_strategies); }
+inline const GameStrategyArray &GamePlayerRep::Strategies(void) const
+{ m_game->BuildComputedValues(); return m_strategies; }
 
 template<> inline double PureBehavProfile::GetPayoff(int pl) const
 { return GetPayoff<double>(m_efg->GetRoot(), pl); }

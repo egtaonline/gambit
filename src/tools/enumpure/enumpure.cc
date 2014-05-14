@@ -173,7 +173,7 @@ NashEnumPureStrategySolver::Solve(const Game &p_game) const
     }
     else {
       std::vector<PureStrategyProfile> intersection;
-      // std::sort(best_responses.begin(), best_responses.end(), profile_sorter);
+      std::sort(best_responses.begin(), best_responses.end(), profile_sorter);
       std::set_intersection(eq_candidates.begin(), eq_candidates.end(),
                             best_responses.begin(), best_responses.end(),
                             std::back_inserter(intersection), profile_sorter);

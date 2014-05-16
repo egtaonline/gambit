@@ -84,13 +84,13 @@ void TablePureStrategyProfileRep::SetStrategy(const GameStrategy &s)
 }
 
 GameOutcome TablePureStrategyProfileRep::GetOutcome(void) const
-{ 
-  return dynamic_cast<GameTableRep &>(*m_nfg).m_results[m_index]; 
+{
+  return dynamic_cast<GameTableRep &>(*m_nfg).m_results[m_index];
 }
 
 void TablePureStrategyProfileRep::SetOutcome(GameOutcome p_outcome)
 {
-  dynamic_cast<GameTableRep &>(*m_nfg).m_results[m_index] = p_outcome; 
+  dynamic_cast<GameTableRep &>(*m_nfg).m_results[m_index] = p_outcome;
 }
 
 Rational TablePureStrategyProfileRep::GetPayoff(int pl) const
@@ -140,9 +140,9 @@ int Product(const Array<int> &dim)
 
 } // end anonymous namespace
 
-  
-GameTableRep::GameTableRep(const Array<int> &dim, 
-			   bool p_sparseOutcomes /* = false */)
+
+GameTableRep::GameTableRep(const Array<int> &dim,
+         bool p_sparseOutcomes /* = false */)
 {
   m_results = Array<GameOutcomeRep *>(Product(dim));
   for (int pl = 1; pl <= dim.Length(); pl++)  {
@@ -156,7 +156,7 @@ GameTableRep::GameTableRep(const Array<int> &dim,
 
   if (p_sparseOutcomes) {
     for (int cont = 1; cont <= m_results.Length();
-	 m_results[cont++] = 0);
+   m_results[cont++] = 0);
   }
   else {
     m_outcomes = Array<GameOutcomeRep *>(m_results.Length());
@@ -194,7 +194,7 @@ bool GameTableRep::IsConstSum(void) const
     for (int pl = 1; pl <= m_players.Length(); pl++) {
       newsum += (*iter)->GetPayoff(pl);
     }
-    
+
     if (newsum != sum) {
       return false;
     }
@@ -212,7 +212,7 @@ namespace {
 std::string EscapeQuotes(const std::string &s)
 {
   std::string ret;
-  
+
   for (unsigned int i = 0; i < s.length(); i++)  {
     if (s[i] == '"')   ret += '\\';
     ret += s[i];
@@ -224,7 +224,7 @@ std::string EscapeQuotes(const std::string &s)
 }  // end anonymous namespace
 
 void GameTableRep::WriteNfgFile(std::ostream &p_file) const
-{ 
+{
   p_file << "NFG 1 R";
   p_file << " \"" << EscapeQuotes(GetTitle()) << "\" { ";
 
@@ -232,7 +232,7 @@ void GameTableRep::WriteNfgFile(std::ostream &p_file) const
     p_file << '"' << EscapeQuotes(GetPlayer(i)->GetLabel()) << "\" ";
 
   p_file << "}\n\n{ ";
-  
+
   for (int i = 1; i <= NumPlayers(); i++)   {
     GamePlayerRep *player = GetPlayer(i);
     p_file << "{ ";
@@ -240,7 +240,7 @@ void GameTableRep::WriteNfgFile(std::ostream &p_file) const
       p_file << '"' << EscapeQuotes(player->GetStrategy(j)->GetLabel()) << "\" ";
     p_file << "}\n";
   }
-  
+
   p_file << "}\n";
 
   p_file << "\"" << EscapeQuotes(m_comment) << "\"\n\n";
@@ -255,17 +255,17 @@ void GameTableRep::WriteNfgFile(std::ostream &p_file) const
     p_file << "{ \"" << EscapeQuotes(m_outcomes[outc]->m_label) << "\" ";
     for (int pl = 1; pl <= m_players.Length(); pl++)  {
       p_file << (const std::string &) m_outcomes[outc]->m_payoffs[pl];
-      
+
       if (pl < m_players.Length()) {
-	p_file << ", ";
+  p_file << ", ";
       }
       else {
-	p_file << " }\n";
+  p_file << " }\n";
       }
     }
   }
   p_file << "}\n";
-  
+
   for (int cont = 1; cont <= ncont; cont++)  {
     if (m_results[cont] != 0) {
       p_file << m_results[cont]->m_number << ' ';
@@ -359,12 +359,12 @@ void GameTableRep::RebuildTable(void)
     long newindex = 1L;
     for (int pl = 1; pl <= m_players.Length(); pl++) {
       if (iter.m_profile->GetStrategy(pl)->m_offset < 0) {
-	// This is a contingency involving a new strategy... skip
-	newindex = -1L;
-	break;
+  // This is a contingency involving a new strategy... skip
+  newindex = -1L;
+  break;
       }
       else {
-	newindex += (iter.m_profile->GetStrategy(pl)->m_number - 1) * offsets[pl];
+  newindex += (iter.m_profile->GetStrategy(pl)->m_number - 1) * offsets[pl];
       }
     }
 
@@ -385,7 +385,7 @@ void GameTableRep::IndexStrategies(void)
        player != m_players.end(); ++player)  {
     int st = 1;
     for (Array<GameStrategyRep *>::const_iterator strategy = player->m_strategies.begin();
-	 strategy != player->m_strategies.end(); ++st, ++strategy) {
+   strategy != player->m_strategies.end(); ++st, ++strategy) {
       strategy->m_number = st;
       strategy->m_offset = (st - 1) * offset;
     }
@@ -396,7 +396,7 @@ void GameTableRep::IndexStrategies(void)
   for (GamePlayers::const_iterator player = m_players.begin();
        player != m_players.end(); ++player) {
     for (Array<GameStrategyRep *>::const_iterator strategy = player->m_strategies.begin();
-	 strategy != player->m_strategies.end(); ++strategy) {
+   strategy != player->m_strategies.end(); ++strategy) {
       strategy->m_id = id++;
     }
   }

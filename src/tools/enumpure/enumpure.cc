@@ -26,7 +26,6 @@
 #include <iostream>
 #include <fstream>
 #include <cerrno>
-#include <unordered_map>
 #include "libgambit/libgambit.h"
 #include "libgambit/subgame.h"
 
@@ -154,22 +153,28 @@ NashEnumPureStrategySolver::Solve(const Game &p_game) const
 {
   clock_t startTime = clock();
   bool flag = false;
-  List<MixedStrategyProfile<Rational> > solutions;
-  std::unordered_map<long, int> eq_candidates;
+  int profile_count = 1;
   for (int pl = 1; pl <= p_game->NumPlayers(); pl++) {
-    std::vector<PureStrategyProfile> best_responses;
+    profile_count *= p_game->GetPlayer(pl)->NumStrategies();
+  }
+  List<MixedStrategyProfile<Rational> > solutions;
+  int eq_candidates [profile_count];
+  for (int i = 0; i < profile_count; i++) {
+    eq_candidates[i] = 0;
+  }
+  for (int pl = 1; pl <= p_game->NumPlayers(); pl++) {
     for (StrategyIterator citer(p_game, pl, 1); !citer.AtEnd(); citer++) {
       List<GameStrategy> strats = (*citer)->GetBestResponse(p_game->GetPlayer(pl));
       for(int i = 1; i <= strats.Length(); i++) {
         PureStrategyProfile temp = (*citer);
         temp->SetStrategy(strats[i]);
-        eq_candidates[temp->GetIndex()] += 1;
+        eq_candidates[temp->GetIndex()-1] += 1;
       }
     }
   }
   int count = p_game->NumPlayers();
   for (StrategyIterator citer(p_game); !citer.AtEnd(); citer++) {
-    if (eq_candidates[(*citer)->GetIndex()] == count) {
+    if (eq_candidates[(*citer)->GetIndex()-1] == count) {
       MixedStrategyProfile<Rational> profile = (*citer)->ToMixedStrategyProfile();
       m_onEquilibrium->Render(profile);
       solutions.Append(profile);

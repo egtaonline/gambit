@@ -26,6 +26,7 @@
 #include <iostream>
 #include <fstream>
 #include <cerrno>
+#include <forward_list>
 #include "libgambit/libgambit.h"
 #include "libgambit/subgame.h"
 
@@ -152,33 +153,34 @@ List<MixedStrategyProfile<Rational> >
 NashEnumPureStrategySolver::Solve(const Game &p_game) const
 {
   clock_t startTime = clock();
-  bool flag = false;
-  int profile_count = 1;
-  for (int pl = 1; pl <= p_game->NumPlayers(); pl++) {
-    profile_count *= p_game->GetPlayer(pl)->NumStrategies();
-  }
   List<MixedStrategyProfile<Rational> > solutions;
-  int eq_candidates [profile_count];
-  for (int i = 0; i < profile_count; i++) {
-    eq_candidates[i] = 0;
+  std::list<PureStrategyProfile> eq_candidates;
+  GamePlayer player1 = p_game->GetPlayer(1);
+  for (StrategyIterator citer(p_game, 1, 1); !citer.AtEnd(); citer++) {
+    List<GameStrategy> strats = (*citer)->GetBestResponse(player1);
+    for(int i = 1; i <= strats.Length(); i++) {
+      PureStrategyProfile temp = (*citer);
+      temp->SetStrategy(strats[i]);
+      eq_candidates.push_back(temp);
+    }
   }
-  for (int pl = 1; pl <= p_game->NumPlayers(); pl++) {
-    for (StrategyIterator citer(p_game, pl, 1); !citer.AtEnd(); citer++) {
-      List<GameStrategy> strats = (*citer)->GetBestResponse(p_game->GetPlayer(pl));
-      for(int i = 1; i <= strats.Length(); i++) {
-        PureStrategyProfile temp = (*citer);
-        temp->SetStrategy(strats[i]);
-        eq_candidates[temp->GetIndex()-1] += 1;
+  cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << endl;
+  for (int pl = 2; pl <= p_game->NumPlayers() && !(eq_candidates.empty()); pl++) {
+    GamePlayer player = p_game->GetPlayer(pl);
+    for (std::list<PureStrategyProfile>::iterator it = eq_candidates.begin(); it != eq_candidates.end();) {
+      if ((*it)->IsBestResponse(player)) {
+        ++it;
+      }
+      else {
+        it = eq_candidates.erase(it);
       }
     }
+    cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << endl;
   }
-  int count = p_game->NumPlayers();
-  for (StrategyIterator citer(p_game); !citer.AtEnd(); citer++) {
-    if (eq_candidates[(*citer)->GetIndex()-1] == count) {
-      MixedStrategyProfile<Rational> profile = (*citer)->ToMixedStrategyProfile();
-      m_onEquilibrium->Render(profile);
-      solutions.Append(profile);
-    }
+  for (std::list<PureStrategyProfile>::iterator it = eq_candidates.begin(); it != eq_candidates.end(); ++it) {
+    MixedStrategyProfile<Rational> profile = (*it)->ToMixedStrategyProfile();
+    m_onEquilibrium->Render(profile);
+    solutions.Append(profile);
   }
   cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << endl;
   return solutions;

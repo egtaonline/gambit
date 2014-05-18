@@ -164,7 +164,6 @@ NashEnumPureStrategySolver::Solve(const Game &p_game) const
       eq_candidates.push_back(temp);
     }
   }
-  cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << endl;
   for (int pl = 2; pl <= p_game->NumPlayers() && !(eq_candidates.empty()); pl++) {
     GamePlayer player = p_game->GetPlayer(pl);
     for (std::list<PureStrategyProfile>::iterator it = eq_candidates.begin(); it != eq_candidates.end();) {
@@ -175,7 +174,6 @@ NashEnumPureStrategySolver::Solve(const Game &p_game) const
         it = eq_candidates.erase(it);
       }
     }
-    cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << endl;
   }
   for (std::list<PureStrategyProfile>::iterator it = eq_candidates.begin(); it != eq_candidates.end(); ++it) {
     MixedStrategyProfile<Rational> profile = (*it)->ToMixedStrategyProfile();

@@ -27,6 +27,7 @@
 #include <fstream>
 #include <cerrno>
 #include <forward_list>
+#include <sys/time.h>
 #include "libgambit/libgambit.h"
 #include "libgambit/subgame.h"
 
@@ -152,7 +153,9 @@ int profile_sorter( const PureStrategyProfile& psp1, const PureStrategyProfile& 
 List<MixedStrategyProfile<Rational> >
 NashEnumPureStrategySolver::Solve(const Game &p_game) const
 {
-  clock_t startTime = clock();
+  struct timeval tim;
+  gettimeofday(&tim, NULL);
+  double t1 = tim.tv_sec+(tim.tv_usec/1000000.0);
   List<MixedStrategyProfile<Rational> > solutions;
   std::list<PureStrategyProfile> eq_candidates;
   GamePlayer player1 = p_game->GetPlayer(1);
@@ -180,7 +183,9 @@ NashEnumPureStrategySolver::Solve(const Game &p_game) const
     m_onEquilibrium->Render(profile);
     solutions.Append(profile);
   }
-  cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC << endl;
+  gettimeofday(&tim, NULL);
+  double t2 = tim.tv_sec+(tim.tv_usec/1000000.0);
+  cout << t2 - t1 << endl;
   return solutions;
 }
 
@@ -351,7 +356,9 @@ int main(int argc, char *argv[])
   }
 
   try {
-    clock_t startTime = clock();
+    struct timeval tim;
+    gettimeofday(&tim, NULL);
+    double t1 = tim.tv_sec+(tim.tv_usec/1000000.0);
     Game game = ReadGame(*input_stream);
 
     if (game->IsTree())  {
@@ -379,7 +386,9 @@ int main(int argc, char *argv[])
     else {
       NashEnumPureStrategySolver algorithm = NashEnumPureStrategySolver(new MixedStrategyCSVRenderer<Rational>(std::cout));
       algorithm.Solve(game);
-      cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC << endl;
+      gettimeofday(&tim, NULL);
+      double t2 = tim.tv_sec+(tim.tv_usec/1000000.0);
+      cout << t2 - t1 << endl;
     }
     return 0;
   }

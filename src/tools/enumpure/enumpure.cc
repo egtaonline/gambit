@@ -351,6 +351,7 @@ int main(int argc, char *argv[])
   }
 
   try {
+    clock_t startTime = clock();
     Game game = ReadGame(*input_stream);
 
     if (game->IsTree())  {
@@ -378,6 +379,7 @@ int main(int argc, char *argv[])
     else {
       NashEnumPureStrategySolver algorithm = NashEnumPureStrategySolver(new MixedStrategyCSVRenderer<Rational>(std::cout));
       algorithm.Solve(game);
+      cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC << endl;
     }
     return 0;
   }

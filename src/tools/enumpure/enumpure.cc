@@ -180,7 +180,7 @@ NashEnumPureStrategySolver::Solve(const Game &p_game) const
     m_onEquilibrium->Render(profile);
     solutions.Append(profile);
   }
-  cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC<< " seconds." << endl;
+  cout << double( clock() - startTime ) / (double)CLOCKS_PER_SEC << endl;
   return solutions;
 }
 
